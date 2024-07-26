@@ -25,6 +25,7 @@ router.post('/rekening', authenticateToken, [
     body('noRekening').notEmpty(),
     body('namaBank').notEmpty(),
     body('atasNama').notEmpty(),
+    body('noTelepon').notEmpty()
 ], (req, res) => {
 
     const errors = validationResult(req);
@@ -34,7 +35,7 @@ router.post('/rekening', authenticateToken, [
         });
     }
 
-    const { noRekening, namaBank, atasNama } = req.body;
+    const { noRekening, namaBank, atasNama, noTelepon } = req.body;
     const userId = req.user.id;
 
     // Mengambil data user berdasarkan id
@@ -61,7 +62,8 @@ router.post('/rekening', authenticateToken, [
             email: email,
             noRekening: noRekening,
             namaBank: namaBank,
-            atasNama: atasNama
+            atasNama: atasNama,
+            noTelepon: noTelepon
         };
 
         // Query untuk insert data rekening
@@ -83,7 +85,32 @@ router.post('/rekening', authenticateToken, [
 });
 
 router.get('/getRekening', authenticateToken, (req, res) => {
-    connection.query('SELECT rekeningid, noRekening, namaBank, atasNama FROM rekening_user WHERE userId = ?', [req.user.id], function (err, rows) {
+    connection.query('SELECT rekeningid, noRekening, namaBank, atasNama, noTelepon FROM rekening_user WHERE userId = ?', [req.user.id], function (err, rows) {
+        if (err) {
+            console.error("Database query error: ", err);
+            return res.status(500).json({
+                status: false,
+                message: 'Internal Server Error',
+            });
+        }
+
+        if (rows.length === 0) {
+            return res.status(404).json({
+                status: false,
+                message: 'No Rekening found',
+            });
+        }
+
+        return res.status(200).json({
+            status: true,
+            message: 'Data Rekening Berhasil Ditampilkan',
+            rekening: rows
+        });
+    });
+});
+
+router.get('/getAllRekening', authenticateToken, (req, res) => {
+    connection.query('SELECT rekeningId, nama_umkm, email, noRekening, namaBank, atasNama, noTelepon FROM rekening_user', function (err, rows) {
         if (err) {
             console.error("Database query error: ", err);
             return res.status(500).json({
@@ -112,6 +139,7 @@ router.put('/updateRekening/:rekeningId', authenticateToken, [
     body('noRekening').optional().isInt(),
     body('namaBank').optional().notEmpty(),
     body('atasNama').optional().notEmpty(),
+    body('noTelepon').optional().notEmpty()
 ], (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -121,12 +149,12 @@ router.put('/updateRekening/:rekeningId', authenticateToken, [
     }
 
     const rekeningId = req.params.rekeningId;
-    const { noRekening, namaBank, atasNama } = req.body;
+    const { noRekening, namaBank, atasNama, noTelepon } = req.body;
     const userId = req.user.id;
 
     // Query untuk update data rekening
     connection.query(
-        'UPDATE rekening_user SET noRekening = ?, namaBank = ?, atasNama = ? WHERE rekeningid = ? AND userId = ?',
+        'UPDATE rekening_user SET noRekening = ?, namaBank = ?, atasNama = ?, noTelepon = ? WHERE rekeningid = ? AND userId = ?',
         [noRekening, namaBank, atasNama, rekeningId, userId],
         function (err, result) {
             if (err) {

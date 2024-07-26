@@ -135,6 +135,32 @@ router.get('/orderUser', authenticateToken, (req, res) => {
     });
 });
 
+router.get('/allOrder', authenticateToken, (req, res) => {
+    connection.query('SELECT orderId, nama_umkm, email, namaProduk, hargaProduk, beratProduk, panjangProduk, lebarProduk, tinggiProduk, jumlahProduk, fotoProduk, tanggalLive, deskripsi, biayaPacking, biayaHost, biayaPlatform, totalPayment, statusLive, buktiTransfer, statusPayment FROM orderuser', function (err, rows) {
+        if (err) {
+            console.error("Database query error: ", err);
+            return res.status(500).json({
+                status: false,
+                message: 'Internal Server Error',
+            });
+        }
+
+        if (rows.length === 0) {
+            return res.status(404).json({
+                status: false,
+                message: 'Data Order Tidak Ditemukan',
+            });
+        }
+
+        return res.status(200).json({
+            status: true,
+            message: 'Data Order Berhasil Ditampilkan',
+            orderUser: rows
+        });
+    });
+});
+
+
 router.get('/orderUser/:orderId', authenticateToken, (req, res) => {
     const { orderId } = req.params;
     connection.query('SELECT orderId, namaProduk, hargaProduk, beratProduk, panjangProduk, lebarProduk, tinggiProduk, jumlahProduk, fotoProduk, tanggalLive, deskripsi, biayaPacking, biayaHost, biayaPlatform, totalPayment, statusLive FROM orderuser WHERE userId = ? AND orderId = ?', [req.user.id, orderId], function (err, rows) {
@@ -159,6 +185,46 @@ router.get('/orderUser/:orderId', authenticateToken, (req, res) => {
             orderDetail: rows[0]
         });
     });
+});
+
+router.put('/updateStatusPayment/:orderId', authenticateToken, [
+    body('statusPayment').optional().notEmpty()
+], (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(422).json({
+            errors: errors.array()
+        });
+    }
+
+    const orderId = req.params.orderId;
+    const { statusPayment } = req.body;
+
+    // Query untuk update data rekening
+    connection.query(
+        'UPDATE orderuser SET statusPayment = ? WHERE orderId = ?',
+        [statusPayment, orderId],
+        function (err, result) {
+            if (err) {
+                return res.status(500).json({
+                    status: false,
+                    message: 'Internal Server Error',
+                });
+            }
+
+            if (result.affectedRows === 0) {
+                return res.status(404).json({
+                    status: false,
+                    message: 'Order not found or not owned by user',
+                });
+            }
+
+            return res.status(200).json({
+                status: true,
+                message: 'Status Payment updated successfully',
+            });
+        }
+    );
 });
 
 
