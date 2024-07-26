@@ -33,6 +33,9 @@ app.use('/api/user', rekeningRouter);
 const addUserOrderRouter = require('./routes/orderRoutes');
 app.use('/api/user', addUserOrderRouter);
 
+const authAdmin = require('./routes/authAdmin');
+app.use('/api/admin', authAdmin);
+
 app.listen(port, () => {
   console.log(`app running at http://localhost:${port}`)
 })
