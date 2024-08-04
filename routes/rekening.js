@@ -134,6 +134,31 @@ router.get('/getAllRekening', authenticateToken, (req, res) => {
     });
 });
 
+router.get('/getNameRekeningUser', authenticateToken, (req, res) => {
+    connection.query('SELECT rekeningId, nama_umkm FROM rekening_user', function (err, rows) {
+        if (err) {
+            console.error("Database query error: ", err);
+            return res.status(500).json({
+                status: false,
+                message: 'Internal Server Error',
+            });
+        }
+
+        if (rows.length === 0) {
+            return res.status(404).json({
+                status: false,
+                message: 'No Rekening found',
+            });
+        }
+
+        return res.status(200).json({
+            status: true,
+            message: 'Data Rekening Berhasil Ditampilkan',
+            rekening: rows
+        });
+    });
+});
+
 // Endpoint untuk memperbarui data rekening
 router.put('/updateRekening/:rekeningId', authenticateToken, [
     body('noRekening').optional().isInt(),

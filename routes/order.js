@@ -136,7 +136,7 @@ router.get('/orderUser', authenticateToken, (req, res) => {
 });
 
 router.get('/allOrder', authenticateToken, (req, res) => {
-    connection.query('SELECT orderId, nama_umkm, email, namaProduk, hargaProduk, beratProduk, panjangProduk, lebarProduk, tinggiProduk, jumlahProduk, fotoProduk, tanggalLive, deskripsi, biayaPacking, biayaHost, biayaPlatform, totalPayment, statusLive, buktiTransfer, statusPayment FROM orderuser', function (err, rows) {
+    connection.query('SELECT orderId, userId, nama_umkm, email, namaProduk, hargaProduk, beratProduk, panjangProduk, lebarProduk, tinggiProduk, jumlahProduk, fotoProduk, tanggalLive, deskripsi, biayaPacking, biayaHost, biayaPlatform, totalPayment, statusLive, buktiTransfer, statusPayment FROM orderuser', function (err, rows) {
         if (err) {
             console.error("Database query error: ", err);
             return res.status(500).json({
