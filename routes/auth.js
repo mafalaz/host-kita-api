@@ -186,4 +186,54 @@ router.get('/getUmkm', authenticateToken, (req, res) => {
     });
 });
 
+// Endpoint untuk mengubah password
+router.put('/ubahPassword/:userId', authenticateToken, [
+    body('password').notEmpty().isLength({ min: 6 })
+], async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(422).json({
+            errors: errors.array()
+        });
+    }
+
+    const userId = req.params.userId;
+    const { password } = req.body;
+
+    try {
+        const saltRounds = 10;
+        const hashedPassword = await bcrypt.hash(password, saltRounds);
+
+        connection.query(
+            'UPDATE register_user SET password = ? WHERE id = ?',
+            [hashedPassword, userId],
+            function (err, result) {
+                if (err) {
+                    return res.status(500).json({
+                        status: false,
+                        message: 'Internal Server Error',
+                    });
+                }
+
+                if (result.affectedRows === 0) {
+                    return res.status(404).json({
+                        status: false,
+                        message: 'Pengguna tidak ditemukan',
+                    });
+                }
+
+                return res.status(200).json({
+                    status: true,
+                    message: 'Password berhasil diubah',
+                });
+            }
+        );
+    } catch (error) {
+        return res.status(500).json({
+            status: false,
+            message: 'Internal Server Error',
+        });
+    }
+});
+
 module.exports = router;

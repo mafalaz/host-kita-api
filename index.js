@@ -24,8 +24,8 @@ app.use('/api/auth', postsRouter);
 const orderRouter = require('./routes/order');
 app.use('/api/user', orderRouter);
 
-const fotoProfilRouter = require('./routes/fotoProfil');
-app.use('/api/user', fotoProfilRouter);
+const fotoProfilRoute = require('./routes/getFotoProfil');
+app.use('/api/user', fotoProfilRoute);
 
 const rekeningRouter = require('./routes/rekening');
 app.use('/api/user', rekeningRouter);
@@ -38,6 +38,12 @@ app.use('/api/admin', authAdmin);
 
 const penjualan = require('./routes/penjualan');
 app.use('/api/admin', penjualan);
+
+const jadwal = require('./routes/jadwal');
+app.use('/api/admin', jadwal);
+
+const getPayment = require('./routes/getPayment');
+app.use('/api/admin', getPayment);
 
 app.listen(port, () => {
   console.log(`app running at http://localhost:${port}`)

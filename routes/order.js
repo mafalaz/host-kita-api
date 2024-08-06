@@ -136,7 +136,34 @@ router.get('/orderUser', authenticateToken, (req, res) => {
 });
 
 router.get('/allOrder', authenticateToken, (req, res) => {
-    connection.query('SELECT orderId, userId, nama_umkm, email, namaProduk, hargaProduk, beratProduk, panjangProduk, lebarProduk, tinggiProduk, jumlahProduk, fotoProduk, tanggalLive, deskripsi, biayaPacking, biayaHost, biayaPlatform, totalPayment, statusLive, buktiTransfer, statusPayment FROM orderuser', function (err, rows) {
+    connection.query(`
+        SELECT 
+            ou.orderId, 
+            ou.userId, 
+            ou.nama_umkm, 
+            ou.email, 
+            ou.namaProduk, 
+            ou.hargaProduk, 
+            ou.beratProduk, 
+            ou.panjangProduk, 
+            ou.lebarProduk, 
+            ou.tinggiProduk, 
+            ou.jumlahProduk, 
+            ou.fotoProduk, 
+            ou.tanggalLive, 
+            ou.deskripsi, 
+            ou.biayaPacking, 
+            ou.biayaHost, 
+            ou.biayaPlatform, 
+            ou.totalPayment, 
+            ou.statusLive, 
+            ou.buktiTransfer, 
+            ou.statusPayment,
+            fp.fotoUmkm AS fotoUmkm
+        FROM orderuser ou
+        LEFT JOIN fotoprofiluser fp ON ou.userId = fp.userId
+        ORDER BY ou.orderId
+    `, function (err, rows) {
         if (err) {
             console.error("Database query error: ", err);
             return res.status(500).json({
@@ -159,6 +186,9 @@ router.get('/allOrder', authenticateToken, (req, res) => {
         });
     });
 });
+
+
+
 
 
 router.get('/orderUser/:orderId', authenticateToken, (req, res) => {

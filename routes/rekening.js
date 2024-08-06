@@ -2,7 +2,6 @@ require('dotenv').config();
 const express = require('express');
 const { body, validationResult } = require('express-validator');
 const jwt = require('jsonwebtoken');
-const multer = require('multer');
 const connection = require('../config/database'); // Sesuaikan dengan file konfigurasi koneksi database Anda
 
 const router = express.Router();
@@ -25,7 +24,6 @@ router.post('/rekening', authenticateToken, [
     body('noRekening').notEmpty(),
     body('namaBank').notEmpty(),
     body('atasNama').notEmpty(),
-    body('noTelepon').notEmpty()
 ], (req, res) => {
 
     const errors = validationResult(req);
@@ -35,7 +33,7 @@ router.post('/rekening', authenticateToken, [
         });
     }
 
-    const { noRekening, namaBank, atasNama, noTelepon } = req.body;
+    const { noRekening, namaBank, atasNama } = req.body;
     const userId = req.user.id;
 
     // Mengambil data user berdasarkan id
@@ -62,8 +60,7 @@ router.post('/rekening', authenticateToken, [
             email: email,
             noRekening: noRekening,
             namaBank: namaBank,
-            atasNama: atasNama,
-            noTelepon: noTelepon
+            atasNama: atasNama
         };
 
         // Query untuk insert data rekening
@@ -85,7 +82,7 @@ router.post('/rekening', authenticateToken, [
 });
 
 router.get('/getRekening', authenticateToken, (req, res) => {
-    connection.query('SELECT rekeningid, noRekening, namaBank, atasNama, noTelepon FROM rekening_user WHERE userId = ?', [req.user.id], function (err, rows) {
+    connection.query('SELECT rekeningid, noRekening, namaBank, atasNama FROM rekening_user WHERE userId = ?', [req.user.id], function (err, rows) {
         if (err) {
             console.error("Database query error: ", err);
             return res.status(500).json({
@@ -110,7 +107,7 @@ router.get('/getRekening', authenticateToken, (req, res) => {
 });
 
 router.get('/getAllRekening', authenticateToken, (req, res) => {
-    connection.query('SELECT rekeningId, nama_umkm, email, noRekening, namaBank, atasNama, noTelepon FROM rekening_user', function (err, rows) {
+    connection.query('SELECT rekeningId, nama_umkm, email, noRekening, namaBank, atasNama FROM rekening_user', function (err, rows) {
         if (err) {
             console.error("Database query error: ", err);
             return res.status(500).json({
@@ -164,7 +161,6 @@ router.put('/updateRekening/:rekeningId', authenticateToken, [
     body('noRekening').optional().isInt(),
     body('namaBank').optional().notEmpty(),
     body('atasNama').optional().notEmpty(),
-    body('noTelepon').optional().notEmpty()
 ], (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -174,12 +170,12 @@ router.put('/updateRekening/:rekeningId', authenticateToken, [
     }
 
     const rekeningId = req.params.rekeningId;
-    const { noRekening, namaBank, atasNama, noTelepon } = req.body;
+    const { noRekening, namaBank, atasNama } = req.body;
     const userId = req.user.id;
 
     // Query untuk update data rekening
     connection.query(
-        'UPDATE rekening_user SET noRekening = ?, namaBank = ?, atasNama = ?, noTelepon = ? WHERE rekeningid = ? AND userId = ?',
+        'UPDATE rekening_user SET noRekening = ?, namaBank = ?, atasNama = ? WHERE rekeningid = ? AND userId = ?',
         [noRekening, namaBank, atasNama, rekeningId, userId],
         function (err, result) {
             if (err) {
