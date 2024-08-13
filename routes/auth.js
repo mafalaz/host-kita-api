@@ -161,7 +161,7 @@ const authenticateToken = (req, res, next) => {
  * GET NAMA UMKM
  */
 router.get('/getUmkm', authenticateToken, (req, res) => {
-    connection.query('SELECT nama_umkm FROM register_user WHERE id = ?', [req.user.id], function (err, rows) {
+    connection.query('SELECT id, nama_umkm FROM register_user WHERE id = ?', [req.user.id], function (err, rows) {
         if (err) {
             return res.status(500).json({
                 status: false,
@@ -176,11 +176,14 @@ router.get('/getUmkm', authenticateToken, (req, res) => {
             });
         }
 
+        const id = rows[0].id
         const nama_umkm = rows[0].nama_umkm;
+
 
         return res.status(200).json({
             status: true,
             message: 'Nama UMKM retrieved successfully',
+            userId: id,
             nama_umkm: nama_umkm
         });
     });

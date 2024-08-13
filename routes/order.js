@@ -111,7 +111,7 @@ router.post('/order', authenticateToken, upload.single('fotoProduk'), [
 });
 
 router.get('/orderUser', authenticateToken, (req, res) => {
-    connection.query('SELECT orderId, namaProduk, hargaProduk, beratProduk, panjangProduk, lebarProduk, tinggiProduk, jumlahProduk, fotoProduk, tanggalLive, deskripsi, biayaPacking, biayaHost, biayaPlatform, totalPayment, statusLive FROM orderuser WHERE userId = ?', [req.user.id], function (err, rows) {
+    connection.query('SELECT orderId, namaProduk, hargaProduk, beratProduk, panjangProduk, lebarProduk, tinggiProduk, jumlahProduk, stockProduk, fotoProduk, tanggalLive, deskripsi, biayaPacking, biayaHost, biayaPlatform, totalPayment, statusLive FROM orderuser WHERE userId = ?', [req.user.id], function (err, rows) {
         if (err) {
             console.error("Database query error: ", err);
             return res.status(500).json({
@@ -148,7 +148,8 @@ router.get('/allOrder', authenticateToken, (req, res) => {
             ou.panjangProduk, 
             ou.lebarProduk, 
             ou.tinggiProduk, 
-            ou.jumlahProduk, 
+            ou.jumlahProduk,
+            ou.stockProduk, 
             ou.fotoProduk, 
             ou.tanggalLive, 
             ou.deskripsi, 
@@ -193,7 +194,7 @@ router.get('/allOrder', authenticateToken, (req, res) => {
 
 router.get('/orderUser/:orderId', authenticateToken, (req, res) => {
     const { orderId } = req.params;
-    connection.query('SELECT orderId, namaProduk, hargaProduk, beratProduk, panjangProduk, lebarProduk, tinggiProduk, jumlahProduk, fotoProduk, tanggalLive, deskripsi, biayaPacking, biayaHost, biayaPlatform, totalPayment, statusLive FROM orderuser WHERE userId = ? AND orderId = ?', [req.user.id, orderId], function (err, rows) {
+    connection.query('SELECT orderId, namaProduk, hargaProduk, beratProduk, panjangProduk, lebarProduk, tinggiProduk, jumlahProduk, stockProduk, fotoProduk, tanggalLive, deskripsi, biayaPacking, biayaHost, biayaPlatform, totalPayment, statusLive FROM orderuser WHERE userId = ? AND orderId = ?', [req.user.id, orderId], function (err, rows) {
         if (err) {
             console.error("Database query error: ", err);
             return res.status(500).json({
@@ -252,6 +253,46 @@ router.put('/updateStatusPayment/:orderId', authenticateToken, [
             return res.status(200).json({
                 status: true,
                 message: 'Status Payment updated successfully',
+            });
+        }
+    );
+});
+
+router.put('/updateStockProduk/:orderId', authenticateToken, [
+    body('stockProduk').optional().notEmpty()
+], (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(422).json({
+            errors: errors.array()
+        });
+    }
+
+    const orderId = req.params.orderId;
+    const { stockProduk } = req.body;
+
+    // Query untuk update data stok produk
+    connection.query(
+        'UPDATE orderuser SET stockProduk = ? WHERE orderId = ?',
+        [stockProduk, orderId],
+        function (err, result) {
+            if (err) {
+                return res.status(500).json({
+                    status: false,
+                    message: 'Internal Server Error',
+                });
+            }
+
+            if (result.affectedRows === 0) {
+                return res.status(404).json({
+                    status: false,
+                    message: 'Order not found or not owned by user',
+                });
+            }
+
+            return res.status(200).json({
+                status: true,
+                message: 'Stock produk updated successfully',
             });
         }
     );

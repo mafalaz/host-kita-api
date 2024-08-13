@@ -45,6 +45,9 @@ app.use('/api/admin', jadwal);
 const getPayment = require('./routes/getPayment');
 app.use('/api/admin', getPayment);
 
+const penawaran = require('./routes/penawaran');
+app.use('/api/admin', penawaran);
+
 app.listen(port, () => {
   console.log(`app running at http://localhost:${port}`)
 })

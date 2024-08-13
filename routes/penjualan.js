@@ -90,18 +90,21 @@ router.get('/allPenjualan', authenticateToken, (req, res) => {
 });
 
 router.get('/penjualanNoDuplicateOrder', authenticateToken, (req, res) => {
-    // SQL query untuk memilih entri dengan orderId yang unik dan paling awal
+    const userId = req.user.id;  // Mengambil userId dari request
+
+    // SQL query untuk memilih entri dengan orderId yang unik dan paling awal berdasarkan userId
     const query = `
         SELECT penjualanId, userId, orderId, nama_umkm, email, namaProduk, hargaProduk, jumlahProduk, sisaProduk, totalCheckout, totalPendapatan, tanggalUpdatePenjualan
         FROM penjualan
         WHERE (penjualanId, orderId) IN (
             SELECT MIN(penjualanId), orderId
             FROM penjualan
+            WHERE userId = ?
             GROUP BY orderId
         )
     `;
 
-    connection.query(query, function (err, rows) {
+    connection.query(query, [userId], function (err, rows) {
         if (err) {
             console.error("Database query error: ", err);
             return res.status(500).json({
@@ -124,6 +127,7 @@ router.get('/penjualanNoDuplicateOrder', authenticateToken, (req, res) => {
         });
     });
 });
+
 
 
 // Endpoint untuk mendapatkan detail penjualan berdasarkan orderId

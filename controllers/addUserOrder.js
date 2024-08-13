@@ -5,7 +5,7 @@ const addUserOrder = async (req, res) => {
   try {
     const userId = req.user.id;
 
-    const {namaProduk, hargaProduk, beratProduk, panjangProduk, lebarProduk, tinggiProduk, jumlahProduk, tanggalLive, deskripsi, biayaPacking, biayaHost, biayaPlatform, totalPayment} = req.body;
+    const {namaProduk, hargaProduk, beratProduk, panjangProduk, lebarProduk, tinggiProduk, jumlahProduk, stockProduk, tanggalLive, deskripsi, biayaPacking, biayaHost, biayaPlatform, totalPayment} = req.body;
 
     const photoBuffer = req.files && req.files.fotoProduk ? req.files.fotoProduk[0].buffer : null;
     const buktiTransferBuffer = req.files && req.files.buktiTransfer ? req.files.buktiTransfer[0].buffer : null;
@@ -50,6 +50,7 @@ const addUserOrder = async (req, res) => {
         lebarProduk: lebarProduk,
         tinggiProduk: tinggiProduk,
         jumlahProduk: jumlahProduk,
+        stockProduk: stockProduk,
         fotoProduk: photoUrl,
         tanggalLive: tanggalLive,
         deskripsi: deskripsi,

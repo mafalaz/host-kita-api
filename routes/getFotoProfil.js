@@ -32,7 +32,7 @@ const authenticateToken = (req, res, next) => {
  * GET Foto Profil
  */
 router.get('/getFotoProfil', authenticateToken, (req, res) => {
-    connection.query('SELECT fotoUmkm FROM fotoprofiluser WHERE userId = ?', [req.user.id], function (err, rows) {
+    connection.query('SELECT userId, fotoUmkm FROM fotoprofiluser WHERE userId = ?', [req.user.id], function (err, rows) {
         if (err) {
             return res.status(500).json({
                 status: false,
@@ -47,11 +47,13 @@ router.get('/getFotoProfil', authenticateToken, (req, res) => {
             });
         }
 
+        const userId = rows[0].userId
         const fotoUmkm = rows[0].fotoUmkm;
 
         return res.status(200).json({
             status: true,
             message: 'Foto profil berhasil ditampilkan',
+            userId: userId,
             fotoUmkm: fotoUmkm
         });
     });

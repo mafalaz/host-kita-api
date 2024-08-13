@@ -24,6 +24,7 @@ router.post('/rekening', authenticateToken, [
     body('noRekening').notEmpty(),
     body('namaBank').notEmpty(),
     body('atasNama').notEmpty(),
+    body('noTelepon').notEmpty()
 ], (req, res) => {
 
     const errors = validationResult(req);
@@ -33,7 +34,7 @@ router.post('/rekening', authenticateToken, [
         });
     }
 
-    const { noRekening, namaBank, atasNama } = req.body;
+    const { noRekening, namaBank, atasNama, noTelepon } = req.body;
     const userId = req.user.id;
 
     // Mengambil data user berdasarkan id
@@ -60,7 +61,8 @@ router.post('/rekening', authenticateToken, [
             email: email,
             noRekening: noRekening,
             namaBank: namaBank,
-            atasNama: atasNama
+            atasNama: atasNama,
+            noTelepon: noTelepon
         };
 
         // Query untuk insert data rekening
@@ -82,7 +84,7 @@ router.post('/rekening', authenticateToken, [
 });
 
 router.get('/getRekening', authenticateToken, (req, res) => {
-    connection.query('SELECT rekeningid, noRekening, namaBank, atasNama FROM rekening_user WHERE userId = ?', [req.user.id], function (err, rows) {
+    connection.query('SELECT rekeningid, noRekening, namaBank, atasNama, noTelepon FROM rekening_user WHERE userId = ?', [req.user.id], function (err, rows) {
         if (err) {
             console.error("Database query error: ", err);
             return res.status(500).json({
@@ -107,7 +109,7 @@ router.get('/getRekening', authenticateToken, (req, res) => {
 });
 
 router.get('/getAllRekening', authenticateToken, (req, res) => {
-    connection.query('SELECT rekeningId, nama_umkm, email, noRekening, namaBank, atasNama FROM rekening_user', function (err, rows) {
+    connection.query('SELECT rekeningId, nama_umkm, email, noRekening, namaBank, atasNama, noTelepon FROM rekening_user', function (err, rows) {
         if (err) {
             console.error("Database query error: ", err);
             return res.status(500).json({
